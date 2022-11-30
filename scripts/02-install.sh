@@ -8,12 +8,12 @@ cd /home/mastodon \
   && export PATH="$HOME/.rbenv/bin:$PATH" \
   && eval "$(rbenv init -)" \
   && git clone https://github.com/rbenv/ruby-build.git /home/mastodon/.rbenv/plugins/ruby-build \
-  && RUBY_CONFIGURE_OPTS=--with-jemalloc rbenv install 3.0.3 \
-  && rbenv global 3.0.3 \
+  && RUBY_CONFIGURE_OPTS=--with-jemalloc rbenv install 3.0.4 \
+  && rbenv global 3.0.4 \
   && cd /home/mastodon \
   && gem install bundler --no-document \
   && git clone https://github.com/tootsuite/mastodon.git live && cd live \
-  && git checkout v3.5.3 \
+  && git checkout v4.0.2 \
   && bundle config set --local deployment 'true' \
   && bundle config set --local without 'development test' \
   && bundle install -j$(getconf _NPROCESSORS_ONLN) \
