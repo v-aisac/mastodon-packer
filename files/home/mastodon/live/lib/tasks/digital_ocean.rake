@@ -7,6 +7,13 @@ namespace :digitalocean do
   desc 'Configure the instance for production use'
   task :setup do
     prompt = TTY::Prompt.new
+
+    dbaas_host = ENV['PG_HOST']
+    dbaas_port = ENV['PG_PORT']
+    dbaas_name = ENV['PG_DB']
+    dbaas_user = ENV['PG_USER']
+    dbaas_pass = ENV['DATABASE_PASSWORD']
+
     env    = {}
 
     begin
@@ -31,10 +38,13 @@ namespace :digitalocean do
       using_docker        = false
       db_connection_works = true
 
-      env['DB_HOST'] = '/var/run/postgresql'
-      env['DB_PORT'] = 5432
-      env['DB_NAME'] = 'mastodon_production'
-      env['DB_USER'] = 'mastodon'
+      env['DB_HOST'] = dbaas_host || '/var/run/postgresql'
+      env['DB_PORT'] = dbaas_port || 5432
+      env['DB_NAME'] = dbaas_name || 'mastodon_production'
+      env['DB_USER'] = dbaas_user || 'mastodon'
+      env['DB_PASS'] = dbaas_pass || ''
+
+      prompt.ok("Bruh #{env['DB_HOST']}")
 
       env['REDIS_HOST'] = 'localhost'
       env['REDIS_PORT'] = 6379
