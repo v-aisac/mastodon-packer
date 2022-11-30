@@ -1,14 +1,5 @@
 #!/bin/bash
 
-PG_HOST=/var/run/postgresql
-
-# Check if dbaas host is available
-if [ -f "/root/.digitalocean_dbaas_credentials" ] && [ "$(sed -n "s/^db_protocol=\"\(.*\)\"$/\1/p" /root/.digitalocean_dbaas_credentials)" = "postgresql" ];
-then
-  # grab dbaas host
-  PG_HOST=$(sed -n "s/^db_host=\"\(.*\)\"$/\1/p" /root/.digitalocean_dbaas_credentials)
-fi
-
 cd /home/mastodon \
   && git clone https://github.com/rbenv/rbenv.git /home/mastodon/.rbenv \
   && cd /home/mastodon/.rbenv && src/configure && make -C src \
@@ -26,5 +17,4 @@ cd /home/mastodon \
   && bundle config set --local deployment 'true' \
   && bundle config set --local without 'development test' \
   && bundle install -j$(getconf _NPROCESSORS_ONLN) \
-  && yarn install --pure-lockfile \
-  && RAILS_ENV=production DB_HOST=$PG_HOST SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load assets:precompile
+  && yarn install --pure-lockfile
