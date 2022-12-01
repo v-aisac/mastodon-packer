@@ -6,15 +6,15 @@ require 'tty-reader'
 namespace :digitalocean do
   desc 'Configure the instance for production use'
   task :setup do
-    prompt = TTY::Prompt.new
+    prompt     = TTY::Prompt.new
 
     dbaas_host = ENV['PG_HOST']
     dbaas_port = ENV['PG_PORT']
     dbaas_name = ENV['PG_DB']
     dbaas_user = ENV['PG_USER']
-    dbaas_pass = ENV['DATABASE_PASSWORD']
+    dbaas_pass = ENV['PG_PASS']
 
-    env    = {}
+    env        = {}
 
     begin
       prompt.ok('Welcome to the Mastodon first-time setup!')
@@ -45,6 +45,10 @@ namespace :digitalocean do
       env['DB_PASS'] = dbaas_pass || ''
 
       prompt.ok("Bruh #{env['DB_HOST']}")
+      prompt.ok("Bruh #{env['DB_PORT']}")
+      prompt.ok("Bruh #{env['DB_NAME']}")
+      prompt.ok("Bruh #{env['DB_USER']}")
+      prompt.ok("Bruh #{env['DB_PASS']}")
 
       env['REDIS_HOST'] = 'localhost'
       env['REDIS_PORT'] = 6379
