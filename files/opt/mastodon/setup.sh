@@ -33,7 +33,6 @@ else
   sudo -u postgres psql -c "CREATE USER mastodon CREATEDB;"
 fi
 
-
 export PATH="/home/mastodon/.rbenv/versions/3.0.4/bin:$PATH"
 
 sudo -i -u mastodon bash << EOF
@@ -48,6 +47,7 @@ sudo -i -u mastodon bash << EOF
 EOF
 
 PG_DB="mastodon_production"
+PG_USER="mastodon" # While using local database we need to change user back to mastodon (this step cannot be done before)
 
 echo "Booting Mastodon's first-time setup wizard..." &&
   su - mastodon -c "cd /home/mastodon/live && export DB_NAME=$PG_DB && export DB_PASS=$PG_PASS && export DB_PORT=$PG_PORT && export DB_USER=$PG_USER && export DB_HOST=$PG_HOST && \
