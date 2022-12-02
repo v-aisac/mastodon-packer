@@ -51,7 +51,7 @@ PG_DB="mastodon_production"
 
 echo "Booting Mastodon's first-time setup wizard..." &&
   su - mastodon -c "cd /home/mastodon/live && export DB_NAME=$PG_DB && export DB_PASS=$PG_PASS && export DB_PORT=$PG_PORT && export DB_USER=$PG_USER && export DB_HOST=$PG_HOST && \
-  [[ "$DATABASE_URL" == "" ]] && (RAILS_ENV=production /home/mastodon/.rbenv/shims/bundle exec rake digitalocean:setup) || (RAILS_ENV=production /home/mastodon/.rbenv/shims/bundle exec rake digitalocean:setup DATABASE_URL=${DATABASE_URL})" &&
+  if [[ \"$DATABASE_URL\" == \"\" ]]; then RAILS_ENV=production /home/mastodon/.rbenv/shims/bundle exec rake digitalocean:setup; else RAILS_ENV=production /home/mastodon/.rbenv/shims/bundle exec rake digitalocean:setup DATABASE_URL=${DATABASE_URL}; fi;" &&
   export $(grep '^LOCAL_DOMAIN=' /home/mastodon/live/.env.production | xargs) &&
   echo "Launching Let's Encrypt utility to obtain SSL certificate..." &&
   systemctl stop nginx &&
