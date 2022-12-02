@@ -8,11 +8,11 @@ namespace :digitalocean do
   task :setup do
     prompt     = TTY::Prompt.new
 
-    dbaas_host = ENV['PG_HOST']
-    dbaas_port = ENV['PG_PORT']
-    dbaas_name = ENV['PG_DB']
-    dbaas_user = ENV['PG_USER']
-    dbaas_pass = ENV['PG_PASS']
+    dbaas_host = ENV['DB_HOST']
+    dbaas_port = ENV['DB_PORT']
+    dbaas_name = ENV['DB_NAME']
+    dbaas_user = ENV['DB_USER']
+    dbaas_pass = ENV['DB_PASS']
 
     env        = {}
 
