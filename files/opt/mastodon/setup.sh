@@ -7,7 +7,7 @@ PG_USER=postgres
 PG_DB=postgres
 
 # Set up postgres dbaas
-if [[ -z "${DATABASE_PROTOCOL}" ]]; then
+if [[ "$DATABASE_PROTOCOL" == "postgresql" ]]; then
 
   # Wait for dbaas to become available
   echo -e "\nWaiting for your database to become available (this may take a few minutes)"
@@ -16,11 +16,9 @@ if [[ -z "${DATABASE_PROTOCOL}" ]]; then
      sleep 2
   done
 
-  export DATABASE_URL="postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/mastodon_production?sslmode=require"
-  echo "test old"
-  echo ${DATABASE_URL}
-  # Export variables for future rake script (TODO: Check if old ENV can be reused)
-  PG_DB=mastodon_production
+  DATABASE_URL="postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/mastodon_production?sslmode=require"
+
+  PG_DB="${DATABASE_DB}"
   PG_HOST="${DATABASE_HOST}"
   PG_PORT="${DATABASE_PORT}"
   PG_USER="${DATABASE_USERNAME}"
@@ -28,27 +26,32 @@ if [[ -z "${DATABASE_PROTOCOL}" ]]; then
 
   # Initialize postgres DB since dbaas does not provide it and Rails is hardcoded to use it
   PGPASSWORD=${DATABASE_PASSWORD} psql -h ${DATABASE_HOST} -p ${DATABASE_PORT} -U ${DATABASE_USERNAME} -d ${DATABASE_DB} -c "CREATE DATABASE postgres;" --set=sslmode=require
+  PGPASSWORD=${DATABASE_PASSWORD} psql -h ${DATABASE_HOST} -p ${DATABASE_PORT} -U ${DATABASE_USERNAME} -d ${DATABASE_DB} -c "CREATE USER mastodon CREATEDB;" --set=sslmode=require
 
-  echo -e "\nDatabase available!\n" # Should we include echo here?
-
+  echo -e "\nManaged database is configured!\n" # Should we include echo here?
+else
+  sudo -u postgres psql -c "CREATE USER mastodon CREATEDB;"
 fi
 
-PGPASSWORD=$PG_PASS psql -h $PG_HOST -p $PG_PORT -U $PG_USER -d $PG_DB -c "CREATE USER mastodon CREATEDB;" --set=sslmode=require
 
-export PATH="/home/mastodon/.rbenv/versions/3.0.3/bin:$PATH"
+export PATH="/home/mastodon/.rbenv/versions/3.0.4/bin:$PATH"
 
-sudo -i -u mastodon DATABASE_URL=${DATABASE_URL} bash << EOF
-export PATH="/home/mastodon/.rbenv/versions/3.0.3/bin:$PATH"
+sudo -i -u mastodon bash << EOF
+  export PATH="/home/mastodon/.rbenv/versions/3.0.4/bin:$PATH" &&
+  cd /home/mastodon/live
 
-echo "Test"
-echo ${DATABASE_URL}
-
-cd /home/mastodon/live &&
-  RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load assets:precompile DATABASE_URL=${DATABASE_URL}
+  if [[ "$DATABASE_URL" == "" ]]; then
+    RAILS_ENV=production DB_HOST=/var/run/postgresql SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load assets:precompile DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+  else
+    RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load assets:precompile DATABASE_URL=${DATABASE_URL} DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+  fi
 EOF
 
+PG_DB="mastodon_production"
+
 echo "Booting Mastodon's first-time setup wizard..." &&
-  su - mastodon -c "cd /home/mastodon/live && export DBAAS_DB_HOST=$DBAAS_DB_HOST && echo $DBAAS_DB_HOST && export DBAAS_DB_PORT=$DBAAS_DB_PORT && export DBAAS_DB_USER=$DBAAS_DB_USER && export DBAAS_DB_NAME=$DBAAS_DB_NAME && export DBAAS_DB_PASS=$DBAAS_DB_PASS && RAILS_ENV=production /home/mastodon/.rbenv/shims/bundle exec rake digitalocean:setup" &&
+  su - mastodon -c "cd /home/mastodon/live && export DB_NAME=$PG_DB && export DB_PASS=$PG_PASS && export DB_PORT=$PG_PORT && export DB_USER=$PG_USER && export DB_HOST=$PG_HOST && \
+  [[ "$DATABASE_URL" == "" ]] && (RAILS_ENV=production /home/mastodon/.rbenv/shims/bundle exec rake digitalocean:setup) || (RAILS_ENV=production /home/mastodon/.rbenv/shims/bundle exec rake digitalocean:setup DATABASE_URL=${DATABASE_URL})" &&
   export $(grep '^LOCAL_DOMAIN=' /home/mastodon/live/.env.production | xargs) &&
   echo "Launching Let's Encrypt utility to obtain SSL certificate..." &&
   systemctl stop nginx &&
