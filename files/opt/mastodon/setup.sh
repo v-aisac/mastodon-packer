@@ -26,7 +26,7 @@ if [[ "$DATABASE_PROTOCOL" == "postgresql" ]]; then
 
   # Initialize postgres DB since dbaas does not provide it and Rails is hardcoded to use it
   PGPASSWORD=${DATABASE_PASSWORD} psql -h ${DATABASE_HOST} -p ${DATABASE_PORT} -U ${DATABASE_USERNAME} -d ${DATABASE_DB} -c "CREATE DATABASE postgres;" --set=sslmode=require
-  PGPASSWORD=${DATABASE_PASSWORD} psql -h ${DATABASE_HOST} -p ${DATABASE_PORT} -U ${DATABASE_USERNAME} -d ${DATABASE_DB} -c "CREATE USER mastodon CREATEDB;" --set=sslmode=require
+  PGPASSWORD=${DATABASE_PASSWORD} psql -h ${DATABASE_HOST} -p ${DATABASE_PORT} -U ${DATABASE_USERNAME} -d ${DATABASE_DB} -c "CREATE USER mastodon WITH PASSWORD '${DATABASE_PASSWORD}' CREATEDB;" --set=sslmode=require
 
   echo -e "\nManaged database is configured!\n" # Should we include echo here?
 else
@@ -40,9 +40,9 @@ sudo -i -u mastodon bash << EOF
   cd /home/mastodon/live
 
   if [[ "$DATABASE_URL" == "" ]]; then
-    RAILS_ENV=production DB_HOST=/var/run/postgresql SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load assets:precompile DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+    RAILS_ENV=production DB_HOST=/var/run/postgresql SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load DISABLE_DATABASE_ENVIRONMENT_CHECK=1
   else
-    RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load assets:precompile DATABASE_URL=${DATABASE_URL} DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+    RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load DATABASE_URL=${DATABASE_URL} DISABLE_DATABASE_ENVIRONMENT_CHECK=1
   fi
 EOF
 
