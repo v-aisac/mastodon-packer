@@ -1,5 +1,5 @@
 #!/bin/bash
-
+122087430
 cd /home/mastodon \
   && git clone https://github.com/rbenv/rbenv.git /home/mastodon/.rbenv \
   && cd /home/mastodon/.rbenv && src/configure && make -C src \
@@ -17,4 +17,5 @@ cd /home/mastodon \
   && bundle config set --local deployment 'true' \
   && bundle config set --local without 'development test' \
   && bundle install -j$(getconf _NPROCESSORS_ONLN) \
-  && yarn install --pure-lockfile
+  && yarn install --pure-lockfile \
+  && RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails assets:precompile
