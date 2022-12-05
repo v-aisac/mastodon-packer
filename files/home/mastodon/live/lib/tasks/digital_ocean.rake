@@ -44,12 +44,6 @@ namespace :digitalocean do
       env['DB_USER'] = dbaas_user || 'mastodon'
       env['DB_PASS'] = dbaas_pass || ''
 
-      prompt.ok("Bruh #{env['DB_HOST']}")
-      prompt.ok("Bruh #{env['DB_PORT']}")
-      prompt.ok("Bruh #{env['DB_NAME']}")
-      prompt.ok("Bruh #{env['DB_USER']}")
-      prompt.ok("Bruh #{env['DB_PASS']}")
-
       env['REDIS_HOST'] = 'localhost'
       env['REDIS_PORT'] = 6379
 
