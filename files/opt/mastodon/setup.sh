@@ -10,7 +10,7 @@ PG_DB=postgres
 if [[ "$DATABASE_PROTOCOL" == "postgresql" ]]; then
 
   # Wait for dbaas to become available.
-  echo -e "Waiting for your managed database to become available (this may take up to 5 minutes)"
+  echo "Waiting for your managed database to become available (this may take up to 5 minutes)"
   while ! pg_isready -h "${DATABASE_HOST}" -p "${DATABASE_PORT}"; do
      sleep 2
   done
