@@ -1,5 +1,5 @@
 #!/bin/bash
-122087430
+
 cd /home/mastodon \
   && git clone https://github.com/rbenv/rbenv.git /home/mastodon/.rbenv \
   && cd /home/mastodon/.rbenv && src/configure && make -C src \
