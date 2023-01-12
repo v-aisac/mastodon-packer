@@ -19,4 +19,3 @@ cloud-init status --wait \
   && corepack enable \
   && yarn set version stable \
   && adduser --disabled-login --gecos '' mastodon \
-  && sudo -u postgres psql -c "CREATE USER mastodon CREATEDB;"

@@ -18,4 +18,4 @@ cd /home/mastodon \
   && bundle config set --local without 'development test' \
   && bundle install -j$(getconf _NPROCESSORS_ONLN) \
   && yarn install --pure-lockfile \
-  && RAILS_ENV=production DB_HOST=/var/run/postgresql SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails db:create db:schema:load assets:precompile
+  && RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder OTP_SECRET=precompile_placeholder SAFETY_ASSURED=1 bin/rails assets:precompile

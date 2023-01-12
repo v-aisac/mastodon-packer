@@ -6,8 +6,15 @@ require 'tty-reader'
 namespace :digitalocean do
   desc 'Configure the instance for production use'
   task :setup do
-    prompt = TTY::Prompt.new
-    env    = {}
+    prompt     = TTY::Prompt.new
+
+    dbaas_host = ENV['DB_HOST']
+    dbaas_port = ENV['DB_PORT']
+    dbaas_name = ENV['DB_NAME']
+    dbaas_user = ENV['DB_USER']
+    dbaas_pass = ENV['DB_PASS']
+
+    env        = {}
 
     begin
       prompt.ok('Welcome to the Mastodon first-time setup!')
@@ -31,10 +38,11 @@ namespace :digitalocean do
       using_docker        = false
       db_connection_works = true
 
-      env['DB_HOST'] = '/var/run/postgresql'
-      env['DB_PORT'] = 5432
-      env['DB_NAME'] = 'mastodon_production'
-      env['DB_USER'] = 'mastodon'
+      env['DB_HOST'] = dbaas_host || '/var/run/postgresql'
+      env['DB_PORT'] = dbaas_port || 5432
+      env['DB_NAME'] = dbaas_name || 'mastodon_production'
+      env['DB_USER'] = dbaas_user || 'mastodon'
+      env['DB_PASS'] = dbaas_pass || ''
 
       env['REDIS_HOST'] = 'localhost'
       env['REDIS_PORT'] = 6379
